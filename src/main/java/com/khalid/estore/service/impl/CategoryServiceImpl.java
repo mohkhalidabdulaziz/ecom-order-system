@@ -1,9 +1,10 @@
-package com.khalid.estore.service;
+package com.khalid.estore.service.impl;
 
 import com.khalid.estore.dto.req.CategoryRequestDTO;
 import com.khalid.estore.dto.resp.CategoryResponseDTO;
 import com.khalid.estore.entity.Category;
 import com.khalid.estore.repository.CategoryRepository;
+import com.khalid.estore.service.CategoryService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -1,7 +1,7 @@
 package com.khalid.estore.controller;
 
 import com.khalid.estore.dto.ProductDTO;
-import com.khalid.estore.entity.Product;
+
 import com.khalid.estore.exception.ResourceNotFoundException;
 import com.khalid.estore.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,7 @@ public class ProductController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long id) throws ResourceNotFoundException {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }

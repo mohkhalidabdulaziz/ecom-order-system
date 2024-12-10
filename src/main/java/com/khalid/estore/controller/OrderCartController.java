@@ -18,14 +18,12 @@ public class OrderCartController {
     @Autowired
     private OrderCartService orderCartService;
 
-    // Get the order cart for a customer
     @GetMapping
     public ResponseEntity<OrderCartDTO> getOrderCart(@PathVariable Long customerId) throws ResourceNotFoundException {
         OrderCartDTO orderCartDTO = orderCartService.getOrderCart(customerId);
         return ResponseEntity.ok(orderCartDTO);
     }
 
-    // Add a product to the customer's cart
     @PostMapping("/products/{productId}/quantity")
     public ResponseEntity<OrderCartDTO> addToCart(
             @PathVariable Long customerId,
@@ -36,7 +34,6 @@ public class OrderCartController {
         return ResponseEntity.ok(updatedCart);
     }
 
-    // Update the quantity of a product in the customer's cart
     @PutMapping("/products/{productId}/quantity")
     public ResponseEntity<OrderCartDTO> updateProductQuantity(
             @PathVariable Long customerId,
@@ -46,7 +43,6 @@ public class OrderCartController {
         return ResponseEntity.ok(updatedCart);
     }
 
-    // Place an order with the items in the cart
     @PostMapping("/place-order")
     public ResponseEntity<OrderCartDTO> placeOrder(@PathVariable Long customerId, @RequestBody List<OrderCartItemDTO> items) throws ResourceNotFoundException {
         OrderCartDTO orderCartDTO = orderCartService.placeOrder(customerId, items);
