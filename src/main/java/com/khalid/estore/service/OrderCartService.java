@@ -1,10 +1,7 @@
 package com.khalid.estore.service;
 
-
-import com.khalid.estore.dto.CustomerDTO;
 import com.khalid.estore.dto.OrderCartDTO;
 import com.khalid.estore.dto.OrderCartItemDTO;
-import com.khalid.estore.dto.ProductDTO;
 import com.khalid.estore.entity.Customer;
 import com.khalid.estore.entity.OrderCart;
 import com.khalid.estore.entity.OrderCartItem;
@@ -15,7 +12,6 @@ import com.khalid.estore.repository.OrderCartRepository;
 import com.khalid.estore.repository.ProductRepository;
 import com.khalid.estore.util.OrderStatus;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -67,7 +63,7 @@ public class OrderCartService {
             // Update quantity if product already in cart
             OrderCartItem item = existingItem.get();
             item.setQuantity(item.getQuantity() + quantity);
-            item.setPrice(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+            item.setPrice(product.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
         } else {
             // Add new product to cart
             OrderCartItem item = new OrderCartItem();
@@ -96,9 +92,9 @@ public class OrderCartService {
         if (orderCart == null) {
             return new OrderCartDTO();
         }
-        return convertToDTO(orderCart);
-    }
 
+        return convertToDTO(orderCart, customer); // Updated to include customer details
+    }
 
     public OrderCartDTO placeOrder(Long customerId, List<OrderCartItemDTO> items) throws ResourceNotFoundException {
         Customer customer = customerRepository.findById(customerId)
@@ -169,9 +165,48 @@ public class OrderCartService {
     }
 
     private OrderCartDTO convertToDTO(OrderCart orderCart) {
-        return modelMapper.map(orderCart, OrderCartDTO.class);
+        OrderCartDTO orderCartDTO = modelMapper.map(orderCart, OrderCartDTO.class);
+
+        // Map OrderCartItemDTOs
+        List<OrderCartItemDTO> itemDTOs = orderCart.getItems().stream().map(item -> {
+            Product product = item.getProduct();
+            OrderCartItemDTO itemDTO = new OrderCartItemDTO();
+            itemDTO.setProductId(product.getId());
+            itemDTO.setProductName(product.getName());
+            itemDTO.setProductDescription(product.getDescription());
+            itemDTO.setQuantity(item.getQuantity());
+            itemDTO.setPrice(product.getPrice());
+            return itemDTO;
+        }).collect(Collectors.toList());
+
+        orderCartDTO.setItems(itemDTOs);
+
+        return orderCartDTO;
     }
 
+    private OrderCartDTO convertToDTO(OrderCart orderCart, Customer customer) {
+        OrderCartDTO orderCartDTO = new OrderCartDTO();
+        orderCartDTO.setId(orderCart.getId());
+        orderCartDTO.setCustomerId(customer.getId());
+        orderCartDTO.setCustomerName(customer.getName());
+        orderCartDTO.setCustomerAddress(customer.getAddress());
+        orderCartDTO.setTotalAmount(orderCart.getTotalAmount());
+        orderCartDTO.setStatus(orderCart.getStatus());
 
+        List<OrderCartItemDTO> itemDTOs = orderCart.getItems().stream().map(item -> {
+            Product product = item.getProduct();
+            OrderCartItemDTO itemDTO = new OrderCartItemDTO();
+            itemDTO.setProductId(product.getId());
+            itemDTO.setProductName(product.getName());
+            itemDTO.setProductDescription(product.getDescription());
+            itemDTO.setQuantity(item.getQuantity());
+            itemDTO.setPrice(product.getPrice());
 
+            return itemDTO;
+        }).collect(Collectors.toList());
+
+        orderCartDTO.setItems(itemDTOs);
+
+        return orderCartDTO;
+    }
 }
