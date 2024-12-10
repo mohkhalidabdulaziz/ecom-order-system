@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,6 +39,54 @@ public class OrderCartService {
 
     @Autowired
     private ModelMapper modelMapper;
+
+    public OrderCartDTO addToCart(Long customerId, Long productId, int quantity) throws ResourceNotFoundException {
+        // Find customer
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        // Find the cart for the customer
+        OrderCart orderCart = orderCartRepository.findByCustomer(customer);
+        if (orderCart == null) {
+            orderCart = new OrderCart();
+            orderCart.setCustomer(customer);
+            orderCart.setStatus(OrderStatus.PENDING);
+            orderCart.setItems(new ArrayList<>());
+        }
+
+        // Find the product
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        // Check if the product is already in the cart
+        Optional<OrderCartItem> existingItem = orderCart.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst();
+
+        if (existingItem.isPresent()) {
+            // Update quantity if product already in cart
+            OrderCartItem item = existingItem.get();
+            item.setQuantity(item.getQuantity() + quantity);
+            item.setPrice(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
+        } else {
+            // Add new product to cart
+            OrderCartItem item = new OrderCartItem();
+            item.setProduct(product);
+            item.setQuantity(quantity);
+            item.setPrice(product.getPrice().multiply(BigDecimal.valueOf(quantity)));
+            orderCart.getItems().add(item);
+        }
+
+        // Recalculate total amount
+        BigDecimal totalAmount = orderCart.getItems().stream()
+                .map(OrderCartItem::getPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        orderCart.setTotalAmount(totalAmount);
+        orderCartRepository.save(orderCart);
+
+        return convertToDTO(orderCart);
+    }
 
     public OrderCartDTO getOrderCart(Long customerId) throws ResourceNotFoundException {
         Customer customer = customerRepository.findById(customerId)
