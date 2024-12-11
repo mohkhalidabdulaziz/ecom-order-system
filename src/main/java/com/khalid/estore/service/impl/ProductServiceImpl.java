@@ -1,6 +1,7 @@
 package com.khalid.estore.service.impl;
 
-import com.khalid.estore.dto.ProductDTO;
+import com.khalid.estore.dto.req.ProductRequestDTO;
+import com.khalid.estore.dto.resp.ProductResponseDTO;
 import com.khalid.estore.entity.Category;
 import com.khalid.estore.entity.Product;
 import com.khalid.estore.exception.ResourceNotFoundException;
@@ -29,24 +30,25 @@ public class ProductServiceImpl implements ProductService {
 
 
     @Override
-    public Page<ProductDTO> getAllProducts(int page, int size) {
+    public Page<ProductResponseDTO> getAllProducts(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
-        return productRepository.findAll(pageable).map(this::convertToDTO);    }
-
-    @Override
-    public ProductDTO createProduct(ProductDTO productDTO) throws ResourceNotFoundException {
-        Category category = categoryRepository.findById(productDTO.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-
-        Product product = modelMapper.map(productDTO, Product.class);
-        product.setCategory(category);
-
-        Product savedProduct = productRepository.save(product);
-        return modelMapper.map(savedProduct, ProductDTO.class);
+        return productRepository.findAll(pageable).map(this::convertToDTO);
     }
 
     @Override
-    public ProductDTO updateProduct(Long id, ProductDTO productDTO) throws ResourceNotFoundException {
+    public ProductResponseDTO createProduct(ProductRequestDTO productRequestDTO) throws ResourceNotFoundException {
+        Category category = categoryRepository.findById(productRequestDTO.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
+        Product product = modelMapper.map(productRequestDTO, Product.class);
+        product.setCategory(category);
+
+        Product savedProduct = productRepository.save(product);
+        return modelMapper.map(savedProduct, ProductResponseDTO.class);
+    }
+
+    @Override
+    public ProductResponseDTO updateProduct(Long id, ProductRequestDTO productDTO) throws ResourceNotFoundException {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
@@ -60,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(category);
 
         Product updatedProduct = productRepository.save(product);
-        return modelMapper.map(updatedProduct, ProductDTO.class);
+        return modelMapper.map(updatedProduct, ProductResponseDTO.class);
     }
 
     @Override
@@ -71,7 +73,7 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(id);
 
     }
-    private ProductDTO convertToDTO(Product product) {
-        return modelMapper.map(product, ProductDTO.class);
+    private ProductResponseDTO convertToDTO(Product product) {
+        return modelMapper.map(product, ProductResponseDTO.class);
     }
 }

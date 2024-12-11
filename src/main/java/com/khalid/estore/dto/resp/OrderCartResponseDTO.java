@@ -1,11 +1,10 @@
-package com.khalid.estore.dto;
+package com.khalid.estore.dto.resp;
 
 
+import com.khalid.estore.dto.req.OrderCartItemRequestDTO;
 import com.khalid.estore.util.OrderStatus;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -13,13 +12,13 @@ import java.util.List;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderCartDTO {
+public class OrderCartResponseDTO {
 
     private Long id;
     private Long customerId;
     private String customerName;
     private String customerAddress;
-    private List<OrderCartItemDTO> items;
+    private List<OrderCartItemRequestDTO> items;
     private BigDecimal totalAmount;
     private OrderStatus status;
 
@@ -55,11 +54,11 @@ public class OrderCartDTO {
         this.customerAddress = customerAddress;
     }
 
-    public List<OrderCartItemDTO> getItems() {
+    public List<OrderCartItemRequestDTO> getItems() {
         return items;
     }
 
-    public void setItems(List<OrderCartItemDTO> items) {
+    public void setItems(List<OrderCartItemRequestDTO> items) {
         this.items = items;
     }
 

@@ -1,7 +1,8 @@
 package com.khalid.estore.controller;
 
-import com.khalid.estore.dto.ProductDTO;
 
+import com.khalid.estore.dto.req.ProductRequestDTO;
+import com.khalid.estore.dto.resp.ProductResponseDTO;
 import com.khalid.estore.exception.ResourceNotFoundException;
 import com.khalid.estore.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,20 +19,20 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping
-    public ResponseEntity<Page<ProductDTO>> getAllProducts(@RequestParam int page, @RequestParam int size) {
-        Page<ProductDTO> productDTOs = productService.getAllProducts(page, size);
+    public ResponseEntity<Page<ProductResponseDTO>> getAllProducts(@RequestParam int page, @RequestParam int size) {
+        Page<ProductResponseDTO> productDTOs = productService.getAllProducts(page, size);
         return ResponseEntity.ok(productDTOs);
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) throws ResourceNotFoundException {
-        ProductDTO savedProductDTO = productService.createProduct(productDTO);
+    public ResponseEntity<ProductResponseDTO> createProduct(@RequestBody ProductRequestDTO productDTO) throws ResourceNotFoundException {
+        ProductResponseDTO savedProductDTO = productService.createProduct(productDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedProductDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDTO) throws ResourceNotFoundException {
-        ProductDTO updatedProductDTO = productService.updateProduct(id, productDTO);
+    public ResponseEntity<ProductResponseDTO> updateProduct(@PathVariable Long id, @RequestBody ProductRequestDTO productDTO) throws ResourceNotFoundException {
+        ProductResponseDTO updatedProductDTO = productService.updateProduct(id, productDTO);
         return ResponseEntity.ok(updatedProductDTO);
     }
 
